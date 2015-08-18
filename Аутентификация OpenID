@@ -1,0 +1,50 @@
+<?php
+//Определим путь к текущему скрипту и формируем конечный redirect_uri
+$to = "http://";
+$to .= $_SERVER['SERVER_NAME'];
+$to .= $_SERVER['REQUEST_URI'];
+ 
+//application_id серверного или автономного типа
+$appid = "application_id_from_my_applications";
+ 
+//Тело запроса
+$url = "https://api.worldoftanks.ru/wot/auth/login/?application_id=$appid&redirect_uri=$to&nofollow=1";
+ 
+$curl = curl_init();
+curl_setopt($curl, CURLOPT_URL, $url);
+curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+curl_setopt($curl, CURLOPT_TIMEOUT, 60);
+ 
+$res = json_decode(curl_exec($curl), true);
+ 
+//Значение location ответа
+$loc = $res['data']['location'];
+ 
+//Перенаправляем пользователя для авторизации
+header("Location:$loc");
+ 
+?>
+Обрабатываем результат, например, кэшируем или иные действия.
+Файл (redirect_uri) – получаем данным методом GET:
+<?php
+ 
+$mas = $_GET;
+ 
+//Выводим весь массив GET
+print_r($mas);
+ 
+//Переменная содержит access_token
+$_GET['access_token'];
+ 
+//Переменная содержит игровое имя
+$_GET['nickname'];
+ 
+//Переменная содержит идентификатор пользователя account_id
+$_GET['account_id'];
+ 
+//access_token активен до timestamp
+$_GET['expires_at'];
+ 
+//Дальнейшие действия
+ 
+?>
