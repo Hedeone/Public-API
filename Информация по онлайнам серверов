@@ -1,0 +1,59 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>Информация по статусу серверов</title>
+    <meta charset="cp-1251" />
+
+</head>
+
+<html>
+
+<p><b>Статусы серверов:</b></p>
+
+<?php
+
+//Идентификатор приложения (Application_id)
+$appid = "ebdac604678d1b3cd611449ee6d30181";
+
+//Возможные варианты - wot, wotb, wowp
+$game = "wot";
+
+$url = "https://api.worldoftanks.ru/wgn/servers/info/?application_id=$appid&game=$game";
+
+$ch = curl_init();
+curl_setopt($ch, CURLOPT_URL, $url);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+curl_setopt($ch, CURLOPT_TIMEOUT, 60);
+
+$result = json_decode(curl_exec($ch), true);
+
+curl_close($ch);
+
+	 foreach($result['data'] as $key => $value) {
+
+  			if($game == "wot")
+        	    	{
+						for ($i = 1; $i <= 7; $i++) {
+    						echo $value[$i]['server'] . " = " . number_format($value[$i]['players_online'], 0, '.', ' ')  . "<br/>";
+													}
+					}
+
+			if($game == "wotb")
+					{
+						echo $value['0']['server'] . " = " . $value['0']['players_online'] . "<br/>";
+					}
+
+			if($game == "wowp")
+					{
+						echo $value['0']['server'] . " = " . $value['0']['players_online'] . "<br/>";
+					}
+
+    }
+
+    $total = $value['0']['players_online'] + $value['1']['players_online'] + $value['2']['players_online'] + $value['3']['players_online'] + $value['4']['players_online'] + $value['5']['players_online'] + $value['6']['players_online'] + $value['7']['players_online'];
+
+	$total = number_format($total, 0, '.', ' ');
+
+    echo "<p><b>Всего:</b> $total</p>";
+
+?>
