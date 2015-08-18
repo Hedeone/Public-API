@@ -1,0 +1,133 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>Информация о достижениях игрока</title>
+    <meta charset="cp-1251" />
+
+</head>
+
+<?php
+
+$time_start = microtime(true);
+
+//Идентификатор приложения (Application_id)
+$appid = "ebdac604678d1b3cd611449ee6d30181";
+
+//$nick - игровое имя
+//$userid - account_id (игрового имени $nick)
+
+echo "<p><b><u>Достижения игрока</u></b></p>";
+
+echo "<p><form action=\"$PHP_SELF\" method=\"post\">
+Укажите игровое имя персонажа <input name=\"nick\" type=\"text\" value=\"\">
+<input type=\"submit\" value=\"Проверить информацию\">
+</form></p>";
+
+$nick = $_POST['nick'];
+$nick = trim($nick);
+
+if (isset($nick) && $nick !== "")
+{
+	if (strlen($nick) < 3)
+	{echo "Игровое имя должно содержать от 3 до 24 символов.";
+	die();}
+
+//Поиск ID по нику
+
+$url1 = "https://api.worldoftanks.ru/wot/account/list/?application_id=$appid&search=$nick&limit=1";
+
+$ch1 = curl_init();
+curl_setopt($ch1, CURLOPT_URL, $url1);
+curl_setopt($ch1, CURLOPT_RETURNTRANSFER, 1);
+curl_setopt($ch1, CURLOPT_TIMEOUT, 60);
+
+$result1 = json_decode(curl_exec($ch1), true);
+
+if (curl_errno($ch1))
+{
+    echo "CURL returned error: ".curl_error($ch1)."\n";
+    die();
+}
+curl_close($ch1);
+
+#if(empty($result1['status']) || $result1['status'] == 'error'){
+#    echo '<div style="background-color: #EDEDE8;">';
+#    foreach($result1['error'] as $key => $value1){
+#        echo "  <b>{$key}:</b> {$value}<br/>";
+#    }
+#    echo '</div>';
+#}else{
+    foreach($result1['data'] as $key => $value1) {
+        $userid = $value1['account_id'];
+    }
+#}
+
+	if ($userid == "")
+	{echo "Пользователь не найден.";
+	die();
+	}
+
+//Поиск закончен
+
+//Получение данных по достиженим игрока
+
+$url = "https://api.worldoftanks.ru/wot/account/achievements/?application_id=$appid&account_id=$userid";
+
+$ch = curl_init();
+curl_setopt($ch, CURLOPT_URL, $url);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+curl_setopt($ch, CURLOPT_TIMEOUT, 60);
+$result = json_decode(curl_exec($ch), true);
+if (curl_errno($ch))
+{
+    echo "CURL returned error: ".curl_error($ch)."\n";
+    die();
+}
+curl_close($ch);
+
+#if(empty($result['status']) || $result['status'] == 'error'){
+#    echo '<div style="background-color: #EDEDE8;">';
+#    foreach($result['error'] as $key => $value){
+#        echo "  <b>{$key}:</b> {$value}<br/>";
+#    }
+#    echo '</div>';
+
+#}else{
+
+    foreach($result['data'] as $key => $value){
+        if(null == $value){
+            echo "  Пользователь <b>" . $nick . "</b> не зарегистрирован.<br/>";
+        }else{
+
+#echo $value['achievements']['medalCarius'];
+//                var_dump($value['achievements']);
+				foreach ($value['achievements'] as $key => $medals)
+                {
+                	echo "$key = $medals <br />";
+                }
+
+//Число элеменотов массива
+$cid = count($value['achievements']);
+echo "<p>Всего наград: $cid</p>";
+
+        }
+        }
+#}
+
+}
+
+echo "</table>";
+
+$time_end = microtime(true);
+
+$worktime = $time_end - $time_start;
+
+$worktime = round($worktime, 4);
+
+echo "<p>Время выполнения: $worktime сек.</p>";
+
+#$c = count ($result);
+
+#echo $c;
+
+?>
