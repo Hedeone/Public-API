@@ -1,0 +1,87 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>Конструктор</title>
+    <meta charset="cp-1251" />
+
+</head>
+
+<?php
+
+$time_start = microtime(true);
+
+//Идентификатор приложения (Application_id)
+$appid = "ebdac604678d1b3cd611449ee6d30181";
+
+//$nick - игровое имя
+//$userid - account_id (игрового имени $nick)
+
+echo "<p><b><u>Танковый конструктор</u></b></p>";
+
+echo "<p><form action=\"$PHP_SELF\" method=\"post\">
+<b>Идентификатор техники</b> <input name=\"tank\" type=\"text\" size=4 value=\"\"><br />
+Идентификатор двигателя <input name=\"engine\" type=\"text\" size=4 value=\"\"><br />
+Идентификатор орудия <input name=\"gun\" type=\"text\" size=4 value=\"\"><br />
+Идентификатор ходовой <input name=\"suspension\" type=\"text\" size=4 value=\"\"><br />
+Идентификатор башни <input name=\"turret\" type=\"text\" size=4 value=\"\"><br />
+Идентификатор радиостанции <input name=\"radio\" type=\"text\" size=4 value=\"\"><br />
+<p><input type=\"submit\" value=\"Проверить информацию\"></p>
+</form></p>";
+
+$tank_id = $_POST['tank'];
+$tank_id = trim($tank_id);
+
+$engine_id = $_POST['engine'];
+$engine_id = trim($engine_id);
+
+$gun_id = $_POST['gun'];
+$gun_id = trim($gun_id);
+
+$suspension_id = $_POST['suspension'];
+$suspension_id = trim($suspension_id);
+
+$turret_id = $_POST['turret'];
+$turret_id = trim($turret_id);
+
+$radio_id = $_POST['radio'];
+$radio_id = trim($radio_id);
+
+if(isset($tank_id) && $tank_id !== "")
+{
+	  $url = "https://api.worldoftanks.ru/wot/encyclopedia/vehicleprofile/?application_id=$appid&tank_id=$tank_id&engine_id=$engine_id&gun_id=$gun_id&suspension_id=$suspension_id&turret_id=$turret_id&radio_id=$radio_id";
+
+	  	$ch = curl_init();
+		curl_setopt($ch, CURLOPT_URL, $url);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+		curl_setopt($ch, CURLOPT_TIMEOUT, 60);
+		$result = json_decode(curl_exec($ch), true);
+			if (curl_errno($ch))
+				{
+    				echo "CURL returned error: ".curl_error($ch)."\n";
+    				die();
+				}
+
+				curl_close($ch);
+
+				foreach($result['data'] as $key => $value){
+					echo "<p>Прочтоность: $value[hp] HP <br />";
+					echo "Прочность корпуса: $value[hull_hp] HP <br />";
+					echo "Вес корпуса: " . number_format($value['hull_weight'], 0, '.', ' ')  . " кг <br />";
+					echo "Боекомплект: $value[max_ammo] <br />";
+					echo "Макс. скорость заднего хода: $value[speed_backward] км/ч <br />";
+					echo "Максимальная скорость: $value[speed_forward] км/ч <br />";
+					echo "Полный вес: " . number_format($value['weight'], 0, '.', ' ')  . " кг </p>";
+
+//И так далее по параметрам
+
+//						$ammos = $value['ammo']['type'];
+//						foreach ($value['ammo']['type'] as $key2 => $types)
+//                        foreach ($value['ammo'] as $key2 => $types)
+//                		{
+//                		print_r($types);
+//						}
+				}
+
+}
+
+?>
